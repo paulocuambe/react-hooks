@@ -3,7 +3,7 @@
 
 import * as React from 'react'
 
-function useLocalStorage(key, defaultValue = '') {
+function useLocalStorageState(key, defaultValue = '') {
   const [state, setState] = React.useState(
     () => window.localStorage.getItem(key) ?? defaultValue,
   )
@@ -16,7 +16,7 @@ function useLocalStorage(key, defaultValue = '') {
 }
 
 function Greeting({initialName = ''}) {
-  const [name, setName] = useLocalStorage('name', initialName)
+  const [name, setName] = useLocalStorageState('name', initialName)
 
   function handleChange(event) {
     setName(event.target.value)
