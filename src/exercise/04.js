@@ -2,17 +2,14 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import * as React from 'react'
+import {useLocalStorageState} from '../utils'
 
 function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
-  const localSquares = localStorage.getItem('squares')
-  const [squares, setSquares] = React.useState(() =>
-    localSquares ? JSON.parse(localSquares) : Array(9).fill(null),
+  const [squares, setSquares] = useLocalStorageState(
+    'squares',
+    Array(9).fill(null),
   )
-
-  React.useEffect(() => {
-    localStorage.setItem('squares', JSON.stringify(squares))
-  }, [squares])
 
   // 🐨 We'll need the following bits of derived state:
   // - nextValue ('X' or 'O')
