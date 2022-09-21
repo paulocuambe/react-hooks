@@ -14,8 +14,10 @@ import {
 } from '../pokemon'
 
 function PokemonInfo({pokemonName}) {
-  const [status, setStatus] = React.useState('idle')
-  const [pokemon, setPokemon] = React.useState(null)
+  const [pokemonStatus, setPokemonStatus] = React.useState({
+    status: 'idle',
+    pokemon: null,
+  })
   const [error, seError] = React.useState(null)
 
   React.useEffect(() => {
@@ -23,25 +25,23 @@ function PokemonInfo({pokemonName}) {
       return
     }
 
-    setPokemon(null)
-    setStatus('pending')
+    setPokemonStatus({status: 'pending', pokemon: null})
     fetchPokemon(pokemonName).then(
       pokemonData => {
-        setPokemon(pokemonData)
-        setStatus('resolved')
+        setPokemonStatus({status: 'resolved', pokemon: pokemonData})
       },
       error => {
         seError(error)
-        setStatus('rejected')
+        setPokemonStatus({status: 'rejected'})
       },
     )
   }, [pokemonName])
 
-  if (status === 'idle') {
+  if (pokemonStatus.status === 'idle') {
     return 'Submit a pokemon'
-  } else if (status === 'pending') {
+  } else if (pokemonStatus.status === 'pending') {
     return <PokemonInfoFallback name={pokemonName} />
-  } else if (status === 'rejected') {
+  } else if (pokemonStatus.status === 'rejected') {
     if (error) {
       return (
         <div role="alert">
@@ -50,8 +50,8 @@ function PokemonInfo({pokemonName}) {
         </div>
       )
     }
-  } else if (status === 'resolved') {
-    return <PokemonDataView pokemon={pokemon} />
+  } else if (pokemonStatus.status === 'resolved') {
+    return <PokemonDataView pokemon={pokemonStatus.pokemon} />
   }
 
   throw new Error('Impossible condition')
