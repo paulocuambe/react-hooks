@@ -6,10 +6,15 @@ import * as React from 'react'
 // fetchPokemon: the function we call to get the pokemon info
 // PokemonInfoFallback: the thing we show while we're loading the pokemon info
 // PokemonDataView: the stuff we use to display the pokemon info
-import {fetchPokemon, PokemonDataView, PokemonForm} from '../pokemon'
+import {
+  fetchPokemon,
+  PokemonDataView,
+  PokemonForm,
+  PokemonInfoFallback,
+} from '../pokemon'
 
 function PokemonInfo({pokemonName}) {
-  // 🐨 Have state for the pokemon (null)
+  const [status, setStatus] = React.useState('idle')
   const [pokemon, setPokemon] = React.useState(null)
   const [error, seError] = React.useState(null)
 
@@ -19,27 +24,37 @@ function PokemonInfo({pokemonName}) {
     }
 
     setPokemon(null)
+    setStatus('pending')
     fetchPokemon(pokemonName).then(
-      pokemonData => setPokemon(pokemonData),
-      error => seError(error),
+      pokemonData => {
+        setPokemon(pokemonData)
+        setStatus('resolved')
+      },
+      error => {
+        seError(error)
+        setStatus('rejected')
+      },
     )
   }, [pokemonName])
 
-  if (!pokemonName) {
+  if (status === 'idle') {
     return 'Submit a pokemon'
-  } else if (!pokemon) {
+  } else if (status === 'pending') {
+    return <PokemonInfoFallback name={pokemonName} />
+  } else if (status === 'rejected') {
     if (error) {
       return (
-        <>
-          <div role="alert">
-            There was an error:{' '}
-            <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
-          </div>
-          {/* <PokemonInfoFallback  name={pokemonName} /> */}
-        </>
+        <div role="alert">
+          There was an error:{' '}
+          <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+        </div>
       )
     }
-  } else return <PokemonDataView pokemon={pokemon} />
+  } else if (status === 'resolved') {
+    return <PokemonDataView pokemon={pokemon} />
+  }
+
+  throw new Error('Impossible condition')
 }
 
 function App() {
